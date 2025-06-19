@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src https:;">
+    <title>Chatbot Analytics Submission Portal</title>
+    <style>
+        :root {
+            --primary-color: #2962ff;
+            --secondary-color: #1e55e3;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+            --warning-color: #ff9800;
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .required {
+            color: var(--error-color);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 60px 20px;
+            border: 2px dashed var(--primary-color);
+            border-radius: var(--border-radius);
+            background-color: rgba(41, 98, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-button:hover {
+            background-color: rgba(41, 98, 255, 0.2);
+            border-color: var(--secondary-color);
+        }
+
+        .file-upload-button.has-file {
+            border-style: solid;
+            background-color: rgba(76, 175, 80, 0.1);
+            border-color: var(--success-color);
+        }
+
+        .file-upload-button.error {
+            border-color: var(--error-color);
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        .file-info {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        select,
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #3d3d3d;
+            border-radius: 8px;
+            background-color: #2d2d2d;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus,
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .api-key-input {
+            font-family: 'Consolas', monospace;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(41, 98, 255, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .status-message.success {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .status-message.error {
+            background-color: rgba(244, 67, 54, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+        }
+
+        .status-message.warning {
+            background-color: rgba(255, 152, 0, 0.1);
+            border: 1px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+
+        .status-message.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .preview-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .preview-section.show {
+            display: block;
+        }
+
+        .preview-header {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .preview-content {
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+        }
+
+        .info-box {
+            background-color: rgba(41, 98, 255, 0.1);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-box h3 {
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .info-box p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .data-insights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .insight-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .insight-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .insight-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .validation-error {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .company-info {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--success-color);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .company-info.show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Chatbot Analytics Portal</h1>
+        <p class="subtitle">Submit weekly chatbot usage data for comprehensive analytics processing</p>
+
+        <div class="info-box">
+            <h3>📊 Submission Guidelines</h3>
+            <p>Upload your Chatbot Studio Activity JSON file. The system will automatically detect the company, validate
+                the data structure, calculate comprehensive metrics, and generate detailed reports.</p>
+        </div>
+
+        <form id="submissionForm">
+            <div class="form-group">
+                <label for="company">Select Company <span class="required">*</span></label>
+                <select id="company" required>
+                    <option value="">-- Select Company --</option>
+                    <option value="maisha-bora">Maisha Bora Sacco</option>
+                    <option value="new-company">+ Add New Company</option>
+                </select>
+                <div class="company-info" id="companyInfo"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="fileInput">Upload JSON Data <span class="required">*</span></label>
+                <div class="file-upload-wrapper">
+                    <label for="fileInput" class="file-upload-button" id="fileUploadButton">
+                        <div>
+                            <div class="upload-icon">📁</div>
+                            <div class="upload-text">Click to upload or drag and drop</div>
+                            <div class="upload-text"
+                                style="font-size: 14px; color: var(--text-secondary); margin-top: 5px;">
+                                JSON files only (max 10MB)
+                            </div>
+                        </div>
+                    </label>
+                    <input type="file" id="fileInput" accept=".json" required />
+                </div>
+                <div class="file-info" id="fileInfo"></div>
+                <div class="validation-error" id="fileError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="apiKey">API Key <span class="required">*</span></label>
+                <input type="password" id="apiKey" class="api-key-input" placeholder="Enter your API key" required />
+                <div class="validation-error" id="apiKeyError"></div>
+            </div>
+
+            <div class="preview-section" id="previewSection">
+                <div class="preview-header">📊 Data Analysis Preview</div>
+                <div class="data-insights" id="dataInsights"></div>
+                <div class="preview-header" style="margin-top: 20px;">📋 Raw Data Preview</div>
+                <div class="preview-content" id="previewContent"></div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <span id="buttonText">Submit Analytics Data</span>
+            </button>
+
+            <div class="status-message" id="statusMessage"></div>
+        </form>
+    </div>
+
+    <script>
+        // Configuration - Updated with actual webhook URL
+        const WEBHOOK_URL = 'https://agents.eadirectory.com/webhook-test/chatbot-analytics-ead';
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+        // DOM Elements
+        const fileInput = document.getElementById('fileInput');
+        const fileUploadButton = document.getElementById('fileUploadButton');
+        const fileInfo = document.getElementById('fileInfo');
+        const previewSection = document.getElementById('previewSection');
+        const previewContent = document.getElementById('previewContent');
+        const dataInsights = document.getElementById('dataInsights');
+        const submitBtn = document.getElementById('submitBtn');
+        const buttonText = document.getElementById('buttonText');
+        const statusMessage = document.getElementById('statusMessage');
+        const form = document.getElementById('submissionForm');
+        const companySelect = document.getElementById('company');
+        const companyInfo = document.getElementById('companyInfo');
+        const fileError = document.getElementById('fileError');
+        const apiKeyError = document.getElementById('apiKeyError');
+
+        let selectedFile = null;
+        let jsonData = null;
+        let detectedCompany = null;
+
+        // Company data
+        const companies = {
+            'maisha-bora': {
+                name: 'Maisha Bora Sacco',
+                pickaxe_id: 'Maisha_Bora_Sacco_Virtual_Assistant_8VSQ2',
+                contact: 'analytics@maishabora.co.ke'
+            }
+        };
+
+        // Event listeners
+        fileInput.addEventListener('change', handleFileSelect);
+        fileUploadButton.addEventListener('dragover', handleDragOver);
+        fileUploadButton.addEventListener('drop', handleDrop);
+        companySelect.addEventListener('change', handleCompanyChange);
+        form.addEventListener('submit', handleSubmit);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            fileUploadButton.style.borderColor = 'var(--secondary-color)';
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            fileUploadButton.style.borderColor = 'var(--primary-color)';
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect({ target: { files } });
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Clear previous errors
+            clearErrors();
+
+            // Validate file type
+            if (file.type !== 'application/json' && !file.name.toLowerCase().endsWith('.json')) {
+                showFileError('Please select a valid JSON file');
+                return;
+            }
+
+            // Validate file size
+            if (file.size > MAX_FILE_SIZE) {
+                showFileError('File size exceeds 10MB limit');
+                return;
+            }
+
+            selectedFile = file;
+            fileUploadButton.classList.add('has-file');
+            fileInfo.classList.add('show');
+            fileInfo.innerHTML = `
+                <strong>Selected file:</strong> ${file.name}<br>
+                <strong>Size:</strong> ${(file.size / 1024).toFixed(2)} KB<br>
+                <strong>Last modified:</strong> ${new Date(file.lastModified).toLocaleString()}
+            `;
+
+            // Read and validate file
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                try {
+                    jsonData = JSON.parse(event.target.result);
+                    validateAndPreviewData(jsonData);
+                } catch (error) {
+                    showFileError('Invalid JSON file format: ' + error.message);
+                    selectedFile = null;
+                    jsonData = null;
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function validateAndPreviewData(data) {
+            // Validate data structure
+            if (!data.activity || !Array.isArray(data.activity)) {
+                showFileError('Invalid data format: Missing or invalid "activity" array');
+                return;
+            }
+
+            if (data.activity.length === 0) {
+                showFileError('No activity data found in the file');
+                return;
+            }
+
+            // Validate first activity item
+            const firstActivity = data.activity[0];
+            if (!firstActivity.pickaxe || !firstActivity.pickaxe.id) {
+                showFileError('Invalid data format: Missing pickaxe information');
+                return;
+            }
+
+            // Auto-detect company
+            detectCompany(firstActivity.pickaxe);
+
+            // Generate preview
+            generateDataPreview(data);
+            previewSection.classList.add('show');
+        }
+
+        function detectCompany(pickaxe) {
+            const pickaxeId = pickaxe.id;
+            const pickaxeTitle = pickaxe.title;
+
+            // Try to match with existing companies
+            for (const [key, company] of Object.entries(companies)) {
+                if (company.pickaxe_id === pickaxeId ||
+                    pickaxeTitle.toLowerCase().includes(company.name.toLowerCase().replace(' ', ''))) {
+                    detectedCompany = key;
+                    companySelect.value = key;
+                    showCompanyInfo(company, 'auto-detected');
+                    return;
+                }
+            }
+
+            // If no match found
+            showCompanyInfo({
+                name: pickaxeTitle,
+                pickaxe_id: pickaxeId,
+                detected: true
+            }, 'new-detected');
+        }
+
+        function generateDataPreview(data) {
+            const activities = data.activity;
+
+            // Calculate quick insights
+            const insights = {
+                totalConversations: activities.length,
+                uniqueUsers: new Set(activities.map(a => a.userId)).size,
+                totalMessages: activities.reduce((sum, a) => sum + (a.messages?.length || 0), 0),
+                avgConversationLength: activities.length > 0 ?
+                    (activities.reduce((sum, a) => sum + (a.messages?.length || 0), 0) / activities.length).toFixed(1) : 0
+            };
+
+            // Display insights
+            dataInsights.innerHTML = `
+                <div class="insight-card">
+                    <div class="insight-value">${insights.totalConversations.toLocaleString()}</div>
+                    <div class="insight-label">Total Conversations</div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-value">${insights.uniqueUsers.toLocaleString()}</div>
+                    <div class="insight-label">Unique Users</div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-value">${insights.totalMessages.toLocaleString()}</div>
+                    <div class="insight-label">Total Messages</div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-value">${insights.avgConversationLength}</div>
+                    <div class="insight-label">Avg Messages/Conversation</div>
+                </div>
+            `;
+
+            // Display raw data preview
+            previewContent.textContent = JSON.stringify(data, null, 2).substring(0, 1000) + '...';
+        }
+
+        function showCompanyInfo(company, type) {
+            let infoHtml = '';
+
+            if (type === 'auto-detected') {
+                infoHtml = `
+                    <strong style="color: var(--success-color);">✓ Auto-detected:</strong> ${company.name}<br>
+                    <strong>Pickaxe ID:</strong> ${company.pickaxe_id}
+                `;
+            } else if (type === 'new-detected') {
+                infoHtml = `
+                    <strong style="color: var(--warning-color);">⚠ New Company Detected:</strong> ${company.name}<br>
+                    <strong>Pickaxe ID:</strong> ${company.pickaxe_id}<br>
+                    <em>This company will be added to the system</em>
+                `;
+            }
+
+            if (infoHtml) {
+                companyInfo.innerHTML = infoHtml;
+                companyInfo.classList.add('show');
+            }
+        }
+
+        function handleCompanyChange(e) {
+            if (e.target.value === 'new-company') {
+                // Handle new company addition
+                const companyName = prompt('Enter the new company name:');
+                if (companyName) {
+                    // You could add this to the companies object or handle it server-side
+                    showStatus('New company will be created during processing', 'warning');
+                }
+            } else if (e.target.value && companies[e.target.value]) {
+                showCompanyInfo(companies[e.target.value], 'selected');
+            } else {
+                companyInfo.classList.remove('show');
+            }
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+
+            // Clear previous errors
+            clearErrors();
+
+            // Validate form
+            if (!jsonData) {
+                showFileError('Please select a JSON file');
+                return;
+            }
+
+            const company = companySelect.value;
+            const apiKey = document.getElementById('apiKey').value.trim();
+
+            if (!company) {
+                showStatus('Please select a company', 'error');
+                return;
+            }
+
+            if (!apiKey) {
+                showError('apiKeyError', 'API key is required');
+                return;
+            }
+
+            // Validate API key format (basic validation)
+            if (apiKey.length < 10) {
+                showError('apiKeyError', 'API key appears to be too short');
+                return;
+            }
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            buttonText.innerHTML = '<span class="spinner"></span>Processing...';
+
+            try {
+                const requestPayload = {
+                    ...jsonData,
+                    metadata: {
+                        submittedAt: new Date().toISOString(),
+                        fileSize: selectedFile.size,
+                        fileName: selectedFile.name,
+                        detectedCompany: detectedCompany
+                    }
+                };
+
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKey,
+                        'X-Company-Hint': company
+                    },
+                    body: JSON.stringify(requestPayload)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showStatus('✅ Data submitted successfully! Processing analytics...', 'success');
+                    // Reset form after successful submission
+                    setTimeout(() => {
+                        resetForm();
+                    }, 3000);
+                } else {
+                    const errorMessage = result.message || result.error || 'Submission failed';
+                    showStatus(`❌ Error: ${errorMessage}`, 'error');
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                showStatus(`🌐 Network error: ${error.message}`, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                buttonText.textContent = 'Submit Analytics Data';
+            }
+        }
+
+        function resetForm() {
+            selectedFile = null;
+            jsonData = null;
+            detectedCompany = null;
+            form.reset();
+            fileUploadButton.classList.remove('has-file');
+            fileInfo.classList.remove('show');
+            previewSection.classList.remove('show');
+            companyInfo.classList.remove('show');
+            statusMessage.classList.remove('show');
+            clearErrors();
+        }
+
+        function showFileError(message) {
+            fileError.textContent = message;
+            fileUploadButton.classList.add('error');
+            selectedFile = null;
+            jsonData = null;
+        }
+
+        function showError(elementId, message) {
+            document.getElementById(elementId).textContent = message;
+        }
+
+        function clearErrors() {
+            fileError.textContent = '';
+            apiKeyError.textContent = '';
+            fileUploadButton.classList.remove('error');
+        }
+
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type} show`;
+
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusMessage.classList.remove('show');
+                }, 5000);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Chatbot Analytics Portal initialized');
+        });
+    </script>
+</body>
+
+</html>
