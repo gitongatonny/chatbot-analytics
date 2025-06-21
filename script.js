@@ -1,8 +1,9 @@
-// Configuration - Updated with actual webhook URL
+// Configuration - Production webhook URL
 const WEBHOOK_URL =
   "https://agents.eadirectory.com/webhook/chatbot-analytics-ead";
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
+// Rest of your existing script.js code remains the same...
 // DOM Elements
 const fileInput = document.getElementById("fileInput");
 const fileUploadButton = document.getElementById("fileUploadButton");
@@ -290,17 +291,28 @@ async function handleSubmit(e) {
       },
     };
 
+    console.log("Submitting to:", WEBHOOK_URL);
+    console.log("Payload size:", JSON.stringify(requestPayload).length);
+
     const response = await fetch(WEBHOOK_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-API-Key": apiKey,
         "X-Company-Hint": company,
+        // Add these additional headers for debugging
+        Accept: "application/json",
+        "Cache-Control": "no-cache",
       },
       body: JSON.stringify(requestPayload),
     });
 
-    const result = await response.json();
+    console.log("Response status:", response.status);
+    console.log("Response headers:", response.headers);
+
+    const result = await response.json().catch(() => ({
+      error: `HTTP ${response.status}: ${response.statusText}`,
+    }));
 
     if (response.ok) {
       showStatus(
@@ -313,7 +325,9 @@ async function handleSubmit(e) {
       }, 3000);
     } else {
       const errorMessage =
-        result.message || result.error || "Submission failed";
+        result.message ||
+        result.error ||
+        `HTTP ${response.status}: ${response.statusText}`;
       showStatus(`❌ Error: ${errorMessage}`, "error");
     }
   } catch (error) {
@@ -369,4 +383,5 @@ function showStatus(message, type) {
 // Initialize
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Chatbot Analytics Portal initialized");
+  console.log("Webhook URL:", WEBHOOK_URL);
 });
