@@ -1,6 +1,6 @@
 // Configuration - Updated with actual webhook URL
 const WEBHOOK_URL =
-  "https://agents.eadirectory.com/webhook-test/chatbot-analytics-ead";
+  "https://agents.eadirectory.com/webhook/chatbot-analytics-ead";
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 // DOM Elements
